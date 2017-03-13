@@ -1,0 +1,5 @@
+- name: web service
+  remote_user: root
+  hosts: webserver
+  roles:
+    - jdk

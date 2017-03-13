@@ -1,0 +1,74 @@
+#!/bin/sh
+#
+# nginx - this script starts and stops the nginx daemon
+#
+# chkconfig:   - 85 15 
+# description:  Nginx is an HTTP(S) server, HTTP(S) reverse \
+#               proxy and IMAP/POP3 proxy server
+# processname: nginx
+# config:      /etc/nginx/nginx.conf
+# config:      /etc/sysconfig/nginx
+# pidfile:     /var/run/nginx.pid
+ 
+# Source function library.
+. /etc/rc.d/init.d/functions
+ 
+# Source networking configuration.
+. /etc/sysconfig/network
+ 
+# Check that networking is up.
+start(){
+ if [ -e /usr/local/nigix/logs/nginx.pid ];then
+	echo  "nginx is running......."
+ else
+	/usr/local/nigix/sbin/nginx
+	echo -e "nginx run success....... [\033[32m ok \033[0m]"
+ fi
+}
+
+stop(){
+ if [ ! -e /usr/local/nigix/logs/nginx.pid ];then
+	echo "nginx is stoped......."
+ else
+	/usr/local/nigix/sbin/nginx -s stop
+	echo -e "nginx stop success....... [\033[31m ok \033[0m]"
+ fi
+}
+
+status(){
+ if [ ! -e /usr/local/nigix/logs/nginx.pid ];then
+	echo -e "\033[31m nginx is stop status!!!.......\033[0m"
+ else
+	echo -e "nginx is running.......[\033[32m ok \033[0m] "
+ fi
+}
+restart(){
+  
+ if [ ! -e /usr/local/nigix/logs/nginx.pid ];then
+	echo -e "nginx is stoped.......[\033[31m fialed \033[0m]"
+ else
+	/usr/local/nigix/sbin/nginx -s stop
+	echo -e "nginx stop success....... [\033[32m ok \033[0m]"
+ fi
+
+	/usr/local/nigix/sbin/nginx
+	echo -e "nginx run success....... [ok]"
+}
+
+
+case "$1" in
+        start)
+                start
+                ;;
+        stop)
+                stop
+                ;;
+        restart)
+                restart
+                ;;
+        status)
+		status
+                ;;
+        *)
+                echo $"Usage: $0 {start|stop|restart|status}"
+esac

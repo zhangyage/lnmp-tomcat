@@ -1,0 +1,39 @@
+- name: install lrzsz
+  yum: name=lrzsz state=present
+
+- name: create source package
+  file: path=/root/source state=directory
+
+- name: cp jdk.tar.gz package
+  copy: src=jdk.tar.gz dest=/root/source/jdk.tar.gz 
+
+- name: create java-home directory
+  file: path=/usr/local/java/ state=directory
+
+- name: Extrect archive
+  command: chdir=/root/source /bin/tar xvf jdk.tar.gz 
+
+- name: file /usr/local/java
+  shell: mv /root/source/jdk1.6.0_45/ /usr/local/java
+
+- name: Set java home
+  lineinfile: dest=/etc/profile line="JAVA_HOME=/usr/local/java/jdk1.6.0_45"
+
+- name: Set java home
+  lineinfile: dest=/etc/profile line="PATH=$JAVA_HOME/bin:$PATH"
+
+- name: Set java home
+  lineinfile: dest=/etc/profile line="CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar"
+
+- name: Set export
+  lineinfile: dest=/etc/profile line="export JAVA_HOME"
+
+- name: Set export
+  lineinfile: dest=/etc/profile line="export PATH"
+
+
+- name: Set export TIME_STYLE='+%Y-%m-%d %H:%M:%S'
+  lineinfile: dest=/etc/profile line="export TIME_STYLE='+%Y-%m-%d %H:%M:%S'"
+
+- name: Update profile
+  shell: executable=/bin/bash source /etc/profile

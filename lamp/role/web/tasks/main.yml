@@ -1,0 +1,71 @@
+- name: install gcc
+  yum: name=gcc state=present
+
+- name: install gcc-c++
+  yum: name=gcc-c++ state=present
+
+- name: install pcre-devel
+  yum: name=pcre-devel state=present
+
+- name: install pcre
+  yum: name=pcre state=present
+
+- name: install openssl
+  yum: name=openssl state=present
+
+- name: install openssl-devel
+  yum: name=openssl-devel state=present
+
+- name: create source package
+  file: path=/root/source state=directory
+
+- name: cp nginx_fair.tar.gz package
+  copy: src=nginx_fair.tar.gz dest=/root/source/nginx_fair.tar.gz 
+
+- name: Extrect archive
+  command: chdir=/root/source /bin/tar xvf nginx_fair.tar.gz
+
+- name: cp ngx_cache.tar.gz package
+  copy: src=ngx_cache.tar.gz dest=/root/source/ngx_cache.tar.gz
+
+
+- name: Extrect archive
+  command: chdir=/root/source /bin/tar xvf ngx_cache.tar.gz
+
+- name: cp nginx.tar.gz package
+  copy: src=nginx.tar.gz dest=/root/source/nginx.tar.gz
+
+
+- name: Extrect archive
+  command: chdir=/root/source /bin/tar xvf nginx.tar.gz 
+
+- name: Configure
+  command: chdir=/root/source/nginx-1.8.0 ./configure --prefix=/usr/local/nginx --with-http_ssl_module --with-http_gzip_static_module --with-http_stub_status_module  --add-module=../ngx_cache_purge-2.3/  --add-module=../nginx-upstream-fair/ 
+
+- name: Make
+  command: chdir=/root/source/nginx-1.8.0 make
+
+- name: Make intall
+  command: chdir=/root/source/nginx-1.8.0 make install
+
+- name: configuration nginx
+  copy: src=nginx.conf dest=/usr/local/nginx/conf/nginx.conf
+
+- name: create cache directory
+  file: path=/opt/nginx/proxy_temp_dir state=directory
+
+
+- name: create cache directory
+  file: path=/opt/nginx/proxy_cache_dir state=directory
+
+- name: create sh directory
+  file: path=/root/sh state=directory
+
+- name: cp nginx_fair.tar.gz package
+  copy: src=nginx-log.sh  dest=/root/nginx-log.sh
+
+- name: crontab add --nginx-log.sh
+  cron: name="custom job" minute=\30 hour=\3 day=\* month=\* weekday=\* job="/bin/bash /root/sh/nginx-log.sh"
+
+
+

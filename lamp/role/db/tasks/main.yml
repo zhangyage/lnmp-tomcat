@@ -1,0 +1,56 @@
+- name: create source package
+  file: path=/root/source state=directory
+- name: install gcc
+  yum: name=gcc state=present
+- name: install gcc-c++
+  yum: name=gcc-c++ state=present
+- name: install cmake
+  yum: name=cmake state=present
+- name: install ncurses-devel
+  yum: name=ncurses-devel state=present
+- name: install perl
+  yum: name=perl state=present
+
+- name: configuration mysqld
+  copy: src=my.cnf dest=/etc/my.cnf
+
+- name: Add mysql user
+  user: name=mysql
+
+- name: service mysql.tar.gz
+  copy: src=mysql.tar.gz dest=/root/source/mysql.tar.gz
+
+- name: Extrect archive
+  command: chdir=/root/source /bin/tar xvf mysql.tar.gz
+
+- name: Configure
+  command: chdir=/root/source/mysql-5.6.16 cmake \
+       -DCMAKE_INSTALL_PREFIX=/usr/local/mysql \
+       -DMYSQL_UNIX_ADDR=/tmp/mysql.sock \
+       -DEXTRA_CHARSETS=all  \
+       -DDEFAULT_CHARSET=utf8 \
+       -DDEFAULT_COLLATION=utf8_general_ci  \
+       -DWITH_MYISAM_STORAGE_ENGINE=1 \
+       -DWITH_INNOBASE_STORAGE_ENGINE=1 \
+       -DWITH_MEMORY_STORAGE_ENGINE=1 \
+       -DWITH_READLINE=1 \
+       -DENABLED_LOCAL_INFILE=1  \
+       -DMYSQL_USER=mysql \
+       -DMYSQL_TCP_PORT=3306 
+        
+
+- name: Make
+  command: chdir=/root/source/mysql-5.6.16 make
+
+- name: Make intall
+  command: chdir=/root/source/mysql-5.6.16 make install
+
+- name: chomd mysql-home 
+  shell: chown -R root /usr/local/mysql 
+
+- name: chomd mysql-datadir pession 
+  shell: chown -R mysql /usr/local/mysql/data
+
+
+- name: Add mysql bin to profile
+  lineinfile: dest=/etc/profile line="export PATH=$PATH:/usr/local/mysql/bin/"

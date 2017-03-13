@@ -1,0 +1,88 @@
+- name: create source package
+  file: path=/root/source state=directory
+
+- name: cp tomcat-moban.zip package
+  copy: src=tomcat-moban.zip dest=/root/source/tomcat-moban.zip 
+
+- name: Extrect archive
+  command: chdir=/root/source /usr/bin/unzip tomcat-moban.zip
+
+- name: file /usr/local/java
+  shell: mv /root/source/apache-tomcat-7.0.65/ /home/tomcat
+
+
+- name: cp nofile.list file
+  copy: src=nofile.list dest=/home/tomcat/bin/
+
+- name: delete catalina.sh file
+  shell: rm -rf /home/tomcat/bin/catalina.sh
+
+- name: cp catalina.sh file
+  copy: src=catalina.sh dest=/home/tomcat/bin mode=0755
+
+- name: install gcc 
+  yum: name=apr-devel state=present
+
+- name: install gcc-c++ 
+  yum: name=apr-devel state=present
+
+- name: install apr-devel 
+  yum: name=apr-devel state=present
+
+- name: install openssl-devel 
+  yum: name=openssl-devel  state=present
+
+- name: cp apr-1.5.2.tar.gz file
+  copy: src=apr-1.5.2.tar.gz dest=/root/source/apr-1.5.2.tar.gz
+
+- name: Extrect archive
+  command: chdir=/root/source /bin/tar xvf apr-1.5.2.tar.gz
+
+- name: Configure
+  command: chdir=/root/source/apr-1.5.2 ./configure 
+
+- name: Make
+  command: chdir=/root/source/apr-1.5.2 make
+
+- name: Make intall
+  command: chdir=/root/source/apr-1.5.2 make install
+
+- name: cp apr-util-1.5.4.tar.gz file
+  copy: src=apr-util-1.5.4.tar.gz dest=/root/source/apr-util-1.5.4.tar.gz
+
+- name: Extrect archive
+  command: chdir=/root/source /bin/tar xvf apr-util-1.5.4.tar.gz
+
+- name: Configure
+  command: chdir=/root/source/apr-util-1.5.4 ./configure \
+        --with-apr=/usr/local/apr/bin/apr-1-config 
+
+- name: Make
+  command: chdir=/root/source/apr-util-1.5.4 make
+
+- name: Make intall
+  command: chdir=/root/source/apr-util-1.5.4 make install
+
+- name: Extrect archive
+  command: chdir=/home/tomcat/bin/ /bin/tar zxfv tomcat-native.tar.gz
+
+- name: Extrect archive
+  command: chdir=/home/tomcat/bin/tomcat-native-1.1.33-src/jni/native/ ./configure \ 
+      --with-apr=/usr/local/apr \ 
+      --with-java-home=/usr/local/java/jdk1.6.0_45 
+
+- name: Make
+  command: chdir=/home/tomcat/bin/tomcat-native-1.1.33-src/jni/native/ make
+
+- name: Make intall
+  command: chdir=/home/tomcat/bin/tomcat-native-1.1.33-src/jni/native/ make install
+
+- name: Update profile
+  shell: executable=/bin/bash source /etc/profile
+
+- name: create ROOT package
+  file: path=/home/tomcat/webapps/ROOT state=directory
+
+- name: cp a.jsp file
+  copy: src=a.jsp dest=/home/tomcat/webapps/ROOT/ mode=0755
+

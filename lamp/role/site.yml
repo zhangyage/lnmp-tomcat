@@ -1,0 +1,9 @@
+me: Install Yum Library
+  hosts: all
+  roles:
+    - common
+
+- name: Install MySql Server Zabbix Server and Config them
+  hosts: server
+  roles:
+    - serveri
